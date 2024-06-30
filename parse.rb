@@ -2,7 +2,7 @@ require "csv"
 require_relative "pdftotext"
 
 puts FILEPATH = File.join(File.dirname(__FILE__), "24 NLC HS CE Finalists Blue Panda.pdf")
-PAGE_BREAK = ""
+PAGE_BREAK = "\f"
 text = PdfToText.new(FILEPATH).text
 
 pages = text.split PAGE_BREAK
@@ -19,7 +19,7 @@ pages.each_with_index do |page, i|
   raise ArgumentError if lines.shift != "Event Schedule"
 
   event_title = lines.shift
-  until lines.first.match? /Arrival Location:.*/
+  until lines.first.match?(/Arrival Location:.*/)
     # Handle multi-line event titles
     event_title += " " + lines.shift
   end
@@ -31,7 +31,6 @@ pages.each_with_index do |page, i|
   finalists = []
 
   until lines.empty?
-    debugger if lines.count < 3
     finalist_school = lines.shift
     finalist_state = lines.shift
     finalist_names = []
@@ -53,7 +52,7 @@ pages.each_with_index do |page, i|
       names: finalist_names,
       school: finalist_school,
       state: finalist_state,
-      time: finalist_time,
+      time: finalist_time
     }
   end
 
@@ -66,7 +65,6 @@ pages.each_with_index do |page, i|
     EVENTS[e] ||= []
     EVENTS[e].concat finalists
   end
-
 end
 
 CSV.open("finalists.csv", "w") do |csv|
@@ -80,7 +78,7 @@ CSV.open("finalists.csv", "w") do |csv|
         finalist[:time],
         finalist[:school],
         finalist[:state],
-        finalist[:names].join(", "),
+        finalist[:names].join(", ")
       ]
     end
   end
